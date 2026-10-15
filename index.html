@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Interativo da Defesa Civil - Proteção e Acessibilidade</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fontes Google (Inter e Lexend / OpenDyslexic fallback) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    // Configuração do Tailwind para cores personalizadas da Defesa Civil
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            defesa: {
+              orange: '#FF6B00',
+              'orange-dark': '#D95B00',
+              'orange-light': '#FFF0E6',
+              navy: '#0F2C59',
+              'navy-light': '#1A407B',
+              blue: '#0056B3',
+              gray: '#F4F6F9'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            dyslexic: ['Lexend', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Styling & Accessibility Overrides */
+    
+    /* Escala de texto ajustável dinamicamente */
+    html.text-scale-80 { font-size: 85%; }
+    html.text-scale-100 { font-size: 100%; }
+    html.text-scale-120 { font-size: 115%; }
+    html.text-scale-140 { font-size: 130%; }
+
+    /* Indicador de Foco Acessível (High Visibility Focus Outline) */
+    *:focus-visible {
+      outline: 3px solid #FF6B00 !important;
+      outline-offset: 3px !important;
+      border-radius: 6px !important;
+    }
+
+    /* Fonte para Dislexia e Espaçamentos */
+    body.dyslexia-font {
+      font-family: 'Lexend', 'Inter', sans-serif !important;
+      letter-spacing: 0.04em !important;
+      word-spacing: 0.12em !important;
+      line-height: 1.8 !important;
+    }
+
+    body.expanded-spacing {
+      letter-spacing: 0.06em !important;
+      line-height: 2.0 !important;
+      word-spacing: 0.15em !important;
+    }
+
+    /* Redução de Movimento */
+    body.reduce-motion *,
+    @media (prefers-reduced-motion: reduce) {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    /* TEMA: ALTO CONTRASTE ESCURO (WCAG AAA) */
+    body.theme-high-contrast {
+      background-color: #000000 !important;
+      color: #FFFF00 !important;
+    }
+    body.theme-high-contrast .hc-card {
+      background-color: #000000 !important;
+      border: 3px solid #FFFF00 !important;
+      color: #FFFFFF !important;
+    }
+    body.theme-high-contrast .hc-text-yellow {
+      color: #FFFF00 !important;
+    }
+    body.theme-high-contrast .hc-btn {
+      background-color: #000000 !important;
+      color: #FFFF00 !important;
+      border: 2px solid #FFFF00 !important;
+    }
+    body.theme-high-contrast .hc-btn:hover,
+    body.theme-high-contrast .hc-btn:focus {
+      background-color: #FFFF00 !important;
+      color: #000000 !important;
+    }
+    body.theme-high-contrast *:focus-visible {
+      outline: 4px solid #FFFF00 !important;
+      outline-offset: 4px !important;
+    }
+
+    /* TEMA: MODO ESCURO SUAVE */
+    body.theme-dark {
+      background-color: #0F172A !important;
+      color: #F8FAFC !important;
+    }
+    body.theme-dark .hc-card {
+      background-color: #1E293B !important;
+      border-color: #334155 !important;
+      color: #F8FAFC !important;
+    }
+
+    /* TEMA: MONOCROMÁTICO */
+    body.theme-grayscale {
+      filter: grayscale(100%);
+    }
+
+    /* Animação suave para cards */
+    .card-transition {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Esconder elementos acessíveis só para leitor de tela */
+    .sr-only-focusable:not(:focus):not(:focus-within) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+  </style>
+</head>
+
+<body class="bg-defesa-gray text-slate-800 font-sans min-h-full flex flex-col transition-colors duration-200" id="appBody">
+
+  <!-- LINK DE ATALHO DE ACESSIBILIDADE PARA SALTAR DIRETO AO CONTEÚDO -->
+  <a href="#main-content" class="sr-only-focusable bg-defesa-orange text-white p-3 font-bold fixed top-2 left-2 z-50 rounded-lg shadow-xl">
+    Ir diretamente para o conteúdo principal (Atalho)
+  </a>
+
+  <!-- BARRA TOP HEADER COM IDENTIDADE VISUAL DA DEFESA CIVIL -->
+  <header class="bg-defesa-navy text-white sticky top-0 z-30 shadow-lg border-b-4 border-defesa-orange" role="banner">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- LOGO E TÍTULO -->
+      <div class="flex items-center gap-3">
+        <!-- Emblema Oficial da Defesa Civil (Triângulo Azul no Fundo Laranja) em SVG -->
+        <div class="w-11 h-11 bg-defesa-orange rounded-lg flex items-center justify-center p-1.5 shadow-inner flex-shrink-0" aria-hidden="true">
+          <svg viewBox="0 0 100 100" class="w-full h-full">
+            <!-- Triângulo Equilátero Azul Internacional -->
+            <polygon points="50,15 90,85 10,85" fill="#0F2C59" stroke="#FFFFFF" stroke-width="4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight leading-tight">
+            DEFESA CIVIL <span class="text-defesa-orange font-normal">| QUIZ</span>
+          </h1>
+          <p class="text-xs text-slate-300 font-medium hidden sm:block">Proteção, Prevenção e Acessibilidade para Todos</p>
+        </div>
+      </div>
+
+      <!-- BARRA DE ACESSIBILIDADE RÁPIDA NO TOPO -->
+      <nav aria-label="Ferramentas Rápidas de Acessibilidade" class="flex items-center gap-2 flex-wrap">
+        
+        <!-- Botão Abrir Painel de Acessibilidade -->
+        <button id="btnOpenAccessibility" onclick="toggleAccessibilityDrawer()" class="hc-btn bg-defesa-navy-light hover:bg-defesa-orange text-white text-xs sm:text-sm font-semibold py-2 px-3 rounded-lg border border-slate-600 flex items-center gap-2 min-h-[44px] transition-all" aria-expanded="false" aria-controls="accessibilityDrawer" aria-label="Abrir Painel Completo de Acessibilidade">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-defesa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
+          </svg>
+          <span class="hidden md:inline">Acessibilidade</span>
+          <span class="bg-defesa-orange text-white text-xs font-bold px-1.5 py-0.5 rounded">WCAG</span>
+        </button>
+
+        <!-- Atalho Rápido de Contraste -->
+        <button onclick="cycleQuickContrast()" class="hc-btn bg-slate-800 hover:bg-slate-700 text-white p-2.5 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center border border-slate-600" aria-label="Alternar Contraste Visual Rápido" title="Alternar Contraste Visual">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m0-18a9 9 0 010 18 drop-shadow" />
+          </svg>
+        </button>
+
+        <!-- Atalho Rápido de Leitor de Voz -->
+        <button id="btnToggleAudioMute" onclick="toggleMuteAudio()" class="hc-btn bg-slate-800 hover:bg-slate-700 text-white p-2.5 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center border border-slate-600" aria-label="Ativar ou Desativar Efeitos Sonoros" title="Efeitos Sonoros On/Off">
+          <span id="iconAudioMute" aria-hidden="true">🔊</span>
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- PAINEL COMPLETO DE FERRAMENTAS DE ACESSIBILIDADE (DRAWER SLIDE-OVER) -->
+  <aside id="accessibilityDrawer" class="hidden fixed inset-0 z-50 overflow-hidden bg-slate-900/80 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="accessibilityTitle">
+    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div class="w-screen max-w-md hc-card bg-white text-slate-800 p-6 shadow-2xl overflow-y-auto flex flex-col justify-between border-l-4 border-defesa-orange">
+        
+        <div>
+          <!-- Cabeçalho do Painel -->
+          <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl" aria-hidden="true">♿</span>
+              <h2 id="accessibilityTitle" class="text-xl font-bold text-defesa-navy hc-text-yellow">
+                Painel de Acessibilidade
+              </h2>
+            </div>
+            <button onclick="toggleAccessibilityDrawer()" class="hc-btn text-slate-500 hover:text-slate-800 p-2 text-2xl font-bold rounded-lg min-h-[44px] min-w-[44px]" aria-label="Fechar painel de acessibilidade">
+              ✕
+            </button>
+          </div>
+
+          <!-- SEÇÃO 1: TAMANHO DO TEXTO -->
+          <div class="mt-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 hc-text-yellow mb-3">
+              1. Tamanho da Fonte (Escala de Texto)
+            </h3>
+            <div class="grid grid-cols-4 gap-2" role="group" aria-label="Controle do tamanho da fonte">
+              <button onclick="setTextScale('80')" class="hc-btn bg-slate-100 hover:bg-defesa-orange hover:text-white p-3 font-bold rounded-lg text-sm border min-h-[48px]" aria-label="Texto Pequeno 80%">A-</button>
+              <button onclick="setTextScale('100')" class="hc-btn bg-slate-100 hover:bg-defesa-orange hover:text-white p-3 font-bold rounded-lg text-sm border min-h-[48px]" aria-label="Texto Normal 100%">A (Pad)</button>
+              <button onclick="setTextScale('120')" class="hc-btn bg-slate-100 hover:bg-defesa-orange hover:text-white p-3 font-bold rounded-lg text-base border min-h-[48px]" aria-label="Texto Grande 120%">A+</button>
+              <button onclick="setTextScale('140')" class="hc-btn bg-slate-100 hover:bg-defesa-orange hover:text-white p-3 font-bold rounded-lg text-lg border min-h-[48px]" aria-label="Texto Muita Grande 140%">A++</button>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 2: MODOS DE CONTRASTE E COR -->
+          <div class="mt-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 hc-text-yellow mb-3">
+              2. Esquema de Cores e Contraste
+            </h3>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="setTheme('default')" class="hc-btn text-left p-3 rounded-lg border font-semibold text-xs flex items-center gap-2 bg-defesa-navy text-white min-h-[48px]">
+                <span class="w-4 h-4 rounded-full bg-defesa-orange block"></span> Oficial Defesa Civil
+              </button>
+              <button onclick="setTheme('high-contrast')" class="hc-btn text-left p-3 rounded-lg border font-semibold text-xs flex items-center gap-2 bg-black text-yellow-300 border-yellow-300 min-h-[48px]">
+                <span class="w-4 h-4 rounded-full bg-yellow-300 block"></span> Alto Contraste Escuro
+              </button>
+              <button onclick="setTheme('dark')" class="hc-btn text-left p-3 rounded-lg border font-semibold text-xs flex items-center gap-2 bg-slate-800 text-slate-100 min-h-[48px]">
+                <span class="w-4 h-4 rounded-full bg-slate-500 block"></span> Modo Escuro
+              </button>
+              <button onclick="setTheme('grayscale')" class="hc-btn text-left p-3 rounded-lg border font-semibold text-xs flex items-center gap-2 bg-gray-200 text-gray-800 min-h-[48px]">
+                <span class="w-4 h-4 rounded-full bg-gray-600 block"></span> Monocromático
+              </button>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 3: LEITOR DE FALA (WEB SPEECH API) -->
+          <div class="mt-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 hc-text-yellow mb-3">
+              3. Leitor de Voz (Síntese pt-BR)
+            </h3>
+            <div class="space-y-3">
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hc-card rounded-lg border cursor-pointer">
+                <input type="checkbox" id="chkAutoRead" class="w-5 h-5 text-defesa-orange rounded focus:ring-defesa-orange" onchange="toggleAutoRead(this.checked)">
+                <span class="text-sm font-semibold">Ler automaticamente ao mudar de questão</span>
+              </label>
+
+              <div class="flex items-center gap-2">
+                <button onclick="readCurrentQuestionSpeech()" class="hc-btn flex-1 bg-defesa-orange hover:bg-defesa-orange-dark text-white font-bold py-2.5 px-3 rounded-lg text-xs flex items-center justify-center gap-1 min-h-[48px]">
+                  🔊 Ler Enunciado Agora
+                </button>
+                <button onclick="stopSpeechSynthesis()" class="hc-btn bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-3 rounded-lg text-xs min-h-[48px]" title="Parar Leitura">
+                  ⏹️ Parar Voz
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 4: FONTE PARA DISLEXIA E ESPAÇAMENTOS -->
+          <div class="mt-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 hc-text-yellow mb-3">
+              4. Legibilidade e Espaçamento
+            </h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hc-card rounded-lg border cursor-pointer">
+                <input type="checkbox" id="chkDyslexia" class="w-5 h-5 text-defesa-orange rounded" onchange="toggleDyslexiaFont(this.checked)">
+                <span class="text-sm font-semibold">Ativar Fonte para Dislexia (Lexend)</span>
+              </label>
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hc-card rounded-lg border cursor-pointer">
+                <input type="checkbox" id="chkSpacing" class="w-5 h-5 text-defesa-orange rounded" onchange="toggleExpandedSpacing(this.checked)">
+                <span class="text-sm font-semibold">Aumentar Espaçamento entre Letras/Linhas</span>
+              </label>
+              <label class="flex items-center gap-3 p-3 bg-slate-50 hc-card rounded-lg border cursor-pointer">
+                <input type="checkbox" id="chkReduceMotion" class="w-5 h-5 text-defesa-orange rounded" onchange="toggleReduceMotion(this.checked)">
+                <span class="text-sm font-semibold">Reduzir Animações e Transições</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 5: ATALHOS DE TECLADO -->
+          <div class="mt-6">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 hc-text-yellow mb-2">
+              5. Guia de Atalhos de Teclado
+            </h3>
+            <ul class="text-xs space-y-1 text-slate-600 hc-text-yellow">
+              <li><kbd class="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold">1</kbd> a <kbd class="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold">4</kbd> : Selecionar Opções A, B, C, D</li>
+              <li><kbd class="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold">Espaço</kbd> / <kbd class="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold">Enter</kbd> : Confirmar / Avançar</li>
+              <li><kbd class="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded font-mono font-bold">Tab</kbd> : Navegar entre elementos interativos</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Botão Concluir Ajustes -->
+        <div class="pt-6 border-t border-slate-200 mt-6">
+          <button onclick="toggleAccessibilityDrawer()" class="hc-btn w-full bg-defesa-navy hover:bg-defesa-navy-light text-white font-bold py-3 px-4 rounded-lg min-h-[48px] text-center">
+            Salvar e Fechar Painel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- REGIONAL ARIA-LIVE PARA MENSAGENS AO LEITOR DE TELA -->
+  <div id="ariaAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- CONTEÚDO PRINCIPAL DA APLICAÇÃO DA WEB -->
+  <main id="main-content" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6" role="main">
+
+    <!-- ================================================================= -->
+    <!-- TELA 1: TELA INICIAL (BOAS-VINDAS E APRESENTAÇÃO) -->
+    <!-- ================================================================= -->
+    <section id="screenIntro" class="space-y-6">
+      <div class="hc-card bg-white rounded-2xl p-6 sm:p-10 shadow-lg border border-slate-200 max-w-4xl mx-auto text-center card-transition">
+        
+        <div class="inline-flex items-center justify-center p-4 bg-orange-100 rounded-full mb-4" aria-hidden="true">
+          <span class="text-4xl">🛡️</span>
+        </div>
+
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-defesa-navy hc-text-yellow mb-3 leading-tight">
+          Quiz Interativo da Defesa Civil
+        </h2>
+        
+        <p class="text-base sm:text-lg text-slate-600 hc-text-yellow max-w-2xl mx-auto mb-6">
+          Testes seus conhecimentos sobre história, prevenção de desastres climáticos, números de emergência e ações comunitárias em 20 questões completas.
+        </p>
+
+        <!-- CARDS DE ESTATÍSTICAS E RECORDE LOCAL -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 text-left max-w-2xl mx-auto">
+          <div class="hc-card bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center gap-3">
+            <span class="text-3xl" aria-hidden="true">🎯</span>
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-500 hc-text-yellow">Total de Questões</p>
+              <p class="text-xl font-extrabold text-defesa-navy hc-text-yellow">20 Perguntas</p>
+            </div>
+          </div>
+
+          <div class="hc-card bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center gap-3">
+            <span class="text-3xl" aria-hidden="true">🏆</span>
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-500 hc-text-yellow">Sua Melhor Pontuação</p>
+              <p id="lblHighScore" class="text-xl font-extrabold text-defesa-orange hc-text-yellow">0 Pts</p>
+            </div>
+          </div>
+
+          <div class="hc-card bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center gap-3">
+            <span class="text-3xl" aria-hidden="true">⚡</span>
+            <div>
+              <p class="text-xs font-bold uppercase text-slate-500 hc-text-yellow">Modo de Jogo</p>
+              <p class="text-xl font-extrabold text-defesa-navy hc-text-yellow">Feedback Imediato</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- OPÇÕES PRÉ-JOGO -->
+        <div class="bg-slate-50 hc-card p-4 rounded-xl border border-slate-200 mb-8 max-w-md mx-auto text-left">
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-sm font-bold text-slate-700 hc-text-yellow flex items-center gap-2">
+              <span aria-hidden="true">⏱️</span> Ativar Temporizador por Pergunta (30s)
+            </span>
+            <input type="checkbox" id="chkEnableTimer" class="w-5 h-5 text-defesa-orange rounded focus:ring-defesa-orange">
+          </label>
+        </div>
+
+        <!-- BOTÃO INICIAR -->
+        <button id="btnStartQuiz" onclick="startQuiz()" class="hc-btn bg-defesa-orange hover:bg-defesa-orange-dark text-white font-extrabold text-lg sm:text-xl py-4 px-10 rounded-xl shadow-xl hover:shadow-2xl transition-all w-full sm:w-auto inline-flex items-center justify-center gap-3 min-h-[56px]">
+          <span>INICIAR O QUIZ AGORA</span>
+          <span aria-hidden="true">🚀</span>
+        </button>
+
+        <p class="text-xs text-slate-500 hc-text-yellow mt-4">
+          Dica: Você pode ativar a leitura de voz a qualquer momento nas ferramentas de acessibilidade.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- TELA 2: TELA DO QUIZ (LAYOUT RESPONSIVO MOBILE E DESKTOP) -->
+    <!-- ================================================================= -->
+    <section id="screenQuiz" class="hidden">
+      
+      <!-- GRID PRINCIPAL: PAINEL LATERAL EM DESKTOP / TOPO EM MOBILE -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- PAINEL DE STATUS & PROGRESSO (COLUNA 4/12 EM DESKTOP) -->
+        <aside class="lg:col-span-4 space-y-4 lg:sticky lg:top-24">
+          
+          <!-- CARD DE PROGRESSO GLOBAL -->
+          <div class="hc-card bg-white p-5 rounded-2xl shadow-md border border-slate-200">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-extrabold text-slate-500 uppercase tracking-wider hc-text-yellow">Progresso Geral</span>
+              <span id="lblQuestionCounter" class="text-sm font-extrabold text-defesa-orange">1 / 20</span>
+            </div>
+            
+            <!-- BARRA DE PROGRESSO VISUAL -->
+            <div class="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-300">
+              <div id="progressBar" class="bg-defesa-orange h-full rounded-full transition-all duration-300" style="width: 5%;"></div>
+            </div>
+
+            <!-- TIMER REGRESSIVO (SE ATIVADO) -->
+            <div id="timerContainer" class="hidden mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-600 hc-text-yellow flex items-center gap-1">
+                ⏱️ Tempo Restante:
+              </span>
+              <span id="lblTimer" class="text-lg font-black text-red-600 font-mono">30s</span>
+            </div>
+          </div>
+
+          <!-- CARD DE PONTUAÇÃO E COMBO -->
+          <div class="hc-card bg-white p-5 rounded-2xl shadow-md border border-slate-200 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wider hc-text-yellow">Pontuação Atual</p>
+              <p id="lblScore" class="text-3xl font-black text-defesa-navy hc-text-yellow">0</p>
+            </div>
+            
+            <div id="comboBadge" class="hidden bg-amber-100 text-amber-800 border border-amber-300 px-3 py-1.5 rounded-xl text-xs font-black animate-bounce flex items-center gap-1">
+              <span>🔥 COMBO</span>
+              <span id="lblComboCount">x2</span>
+            </div>
+          </div>
+
+          <!-- BOTÕES DE CONTROLE DA QUESTÃO -->
+          <div class="hc-card bg-white p-4 rounded-2xl shadow-md border border-slate-200 space-y-2">
+            <button onclick="readCurrentQuestionSpeech()" class="hc-btn w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 min-h-[48px] border border-slate-300">
+              <span>🔊 Ouvir Pergunta em Voz Alta</span>
+            </button>
+          </div>
+
+        </aside>
+
+
+        <!-- PAINEL CENTRAL DA PERGUNTA (COLUNA 8/12 EM DESKTOP) -->
+        <article class="lg:col-span-8 hc-card bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 card-transition" aria-labelledby="lblCategory">
+          
+          <!-- CATEGORIA E INDICADOR -->
+          <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <span id="lblCategory" class="bg-defesa-navy text-white text-xs font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-lg border border-slate-700">
+              Categoria
+            </span>
+            <span class="text-xs text-slate-500 font-bold hc-text-yellow">Teclas [1 - 4] para escolher</span>
+          </div>
+
+          <!-- ENUNCIADO DA PERGUNTA -->
+          <h2 id="lblQuestionText" class="text-lg sm:text-2xl font-bold text-slate-900 hc-text-yellow mb-6 leading-relaxed">
+            Carregando enunciado da pergunta...
+          </h2>
+
+          <!-- OPÇÕES DE RESPOSTA (CARDS VERTICAIS COM ALTURA MÍNIMA 48PX-52PX) -->
+          <div id="optionsContainer" class="space-y-3 mb-6" role="radiogroup" aria-label="Opções de resposta para a questão">
+            <!-- As 4 opções serão renderizadas dinamicamente via JavaScript -->
+          </div>
+
+          <!-- CARD DE EXPLICAÇÃO EDUCATIVA (MENSAGEM DE FEEDBACK) -->
+          <div id="feedbackBox" class="hidden p-5 rounded-xl border-2 mb-6 card-transition" role="alert" aria-live="assertive">
+            <div class="flex items-start gap-3">
+              <span id="feedbackIcon" class="text-2xl flex-shrink-0" aria-hidden="true">💡</span>
+              <div class="space-y-1">
+                <h3 id="feedbackTitle" class="font-extrabold text-base sm:text-lg">Explicação</h3>
+                <p id="feedbackText" class="text-sm sm:text-base leading-relaxed">
+                  Texto explicativo detalhado sobre a questão...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- BARRA INFERIOR DE NAVEGAÇÃO / AVANÇAR -->
+          <div class="flex items-center justify-between pt-4 border-t border-slate-200 gap-4">
+            <p class="text-xs text-slate-500 hc-text-yellow hidden sm:block">Pressione <kbd class="px-1.5 py-0.5 bg-slate-200 rounded font-mono text-slate-800 font-bold">Espaço</kbd> ou <kbd class="px-1.5 py-0.5 bg-slate-200 rounded font-mono text-slate-800 font-bold">Enter</kbd> para prosseguir.</p>
+
+            <button id="btnNextQuestion" onclick="nextQuestion()" class="hidden hc-btn bg-defesa-orange hover:bg-defesa-orange-dark text-white font-extrabold text-base py-3.5 px-8 rounded-xl shadow-md transition-all ml-auto flex items-center justify-center gap-2 min-h-[50px] w-full sm:w-auto">
+              <span>PRÓXIMA QUESTÃO</span>
+              <span aria-hidden="true">➡️</span>
+            </button>
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- TELA 3: TELA FINAL DE RESULTADOS E DIAGNÓSTICO -->
+    <!-- ================================================================= -->
+    <section id="screenResults" class="hidden space-y-6">
+      <div class="hc-card bg-white rounded-2xl p-6 sm:p-10 shadow-xl border border-slate-200 max-w-4xl mx-auto text-center card-transition">
+        
+        <!-- MEDALHA DE CONQUISTA -->
+        <div id="rankBadgeIcon" class="text-6xl mb-3 animate-bounce" aria-hidden="true">🏆</div>
+
+        <h2 class="text-2xl sm:text-4xl font-black text-defesa-navy hc-text-yellow mb-1">
+          Resultado Final do Quiz
+        </h2>
+        <p class="text-sm sm:text-base text-slate-600 hc-text-yellow mb-6">
+          Confira o seu desempenho e patamar de preparação em Proteção Civil!
+        </p>
+
+        <!-- DESTAQUE DA PATENTE / MEDALHA -->
+        <div class="bg-gradient-to-r from-slate-900 to-defesa-navy text-white p-6 rounded-2xl shadow-inner mb-8 border-2 border-defesa-orange">
+          <p class="text-xs font-bold uppercase tracking-widest text-defesa-orange mb-1">Sua Patente Alcançada</p>
+          <h3 id="lblRankTitle" class="text-2xl sm:text-3xl font-black text-yellow-300 mb-2">Especialista em Gestão de Riscos</h3>
+          <p id="lblRankDescription" class="text-xs sm:text-sm text-slate-200 max-w-lg mx-auto">
+            Você possui um excelente conhecimento sobre prevenção de riscos e atuação emergencial!
+          </p>
+        </div>
+
+        <!-- ESTATÍSTICAS PRINCIPAIS -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <div class="hc-card bg-slate-50 p-4 rounded-xl border">
+            <p class="text-xs font-bold text-slate-500 uppercase hc-text-yellow">Pontos</p>
+            <p id="lblFinalScore" class="text-2xl font-black text-defesa-orange">0</p>
+          </div>
+          <div class="hc-card bg-slate-50 p-4 rounded-xl border">
+            <p class="text-xs font-bold text-slate-500 uppercase hc-text-yellow">Acertos</p>
+            <p id="lblFinalCorrect" class="text-2xl font-black text-emerald-600">0 / 20</p>
+          </div>
+          <div class="hc-card bg-slate-50 p-4 rounded-xl border">
+            <p class="text-xs font-bold text-slate-500 uppercase hc-text-yellow">Aproveitamento</p>
+            <p id="lblFinalPercent" class="text-2xl font-black text-defesa-navy hc-text-yellow">0%</p>
+          </div>
+          <div class="hc-card bg-slate-50 p-4 rounded-xl border">
+            <p class="text-xs font-bold text-slate-500 uppercase hc-text-yellow">Maior Combo</p>
+            <p id="lblFinalCombo" class="text-2xl font-black text-amber-600">x0</p>
+          </div>
+        </div>
+
+        <!-- DIAGNÓSTICO POR CATEGORIA -->
+        <div class="text-left mb-8">
+          <h4 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider hc-text-yellow mb-3">
+            Desempenho por Categoria de Conhecimento
+          </h4>
+          <div id="categoryBreakdownContainer" class="space-y-3">
+            <!-- Renderizado dinamicamente via JS -->
+          </div>
+        </div>
+
+        <!-- BOTOES DE AÇÃO -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-slate-200">
+          <button onclick="startQuiz()" class="hc-btn bg-defesa-orange hover:bg-defesa-orange-dark text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md min-h-[50px] w-full sm:w-auto flex items-center justify-center gap-2">
+            <span>🔄 Jogar Novamente</span>
+          </button>
+          
+          <button onclick="toggleReviewModal()" class="hc-btn bg-defesa-navy hover:bg-defesa-navy-light text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md min-h-[50px] w-full sm:w-auto flex items-center justify-center gap-2">
+            <span>🔍 Revisar Todas as Respostas</span>
+          </button>
+
+          <button onclick="shareResults()" class="hc-btn bg-slate-800 hover:bg-slate-900 text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md min-h-[50px] w-full sm:w-auto flex items-center justify-center gap-2">
+            <span>📋 Copiar / Compartilhar Resultado</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ================================================================= -->
+    <!-- MODAL DE REVISÃO DAS 20 RESPOSTAS -->
+    <!-- ================================================================= -->
+    <div id="reviewModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+      <div class="max-w-4xl mx-auto hc-card bg-white rounded-2xl shadow-2xl p-6 border-2 border-defesa-orange space-y-6 my-8">
+        
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+          <h3 id="reviewTitle" class="text-xl font-black text-defesa-navy hc-text-yellow">
+            Revisão Completa do Quiz (20 Questões)
+          </h3>
+          <button onclick="toggleReviewModal()" class="hc-btn text-slate-500 hover:text-slate-800 p-2 text-2xl font-bold rounded-lg min-h-[44px] min-w-[44px]">
+            ✕
+          </button>
+        </div>
+
+        <div id="reviewListContainer" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+          <!-- Renderizado via JS -->
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 text-right">
+          <button onclick="toggleReviewModal()" class="hc-btn bg-defesa-navy hover:bg-defesa-navy-light text-white font-bold py-3 px-6 rounded-xl min-h-[48px]">
+            Fechar Revisão
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- TOAST DE NOTIFICAÇÃO DE COPIA / AVISOS -->
+  <div id="toastNotification" class="hidden fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl font-bold text-sm border-2 border-defesa-orange transition-all duration-300" role="status">
+    Mensagem do Sistema
+  </div>
+
+  <!-- RODAPÉ ACESSÍVEL -->
+  <footer class="bg-defesa-navy text-slate-300 border-t border-slate-800 py-6 mt-12 text-center text-xs" role="contentinfo">
+    <div class="max-w-7xl mx-auto px-4">
+      <p class="font-semibold text-sm text-white mb-1">Defesa Civil: Somos Todos Nós</p>
+      <p>Desenvolvido conforme as diretrizes de acessibilidade web WCAG 2.1 nível AA/AAA.</p>
+      <p class="mt-2 text-slate-400">Emergência? Ligue <strong>199</strong> (Defesa Civil) ou <strong>193</strong> (Corpo de Bombeiros). Cadastre seu CEP enviando SMS para <strong>40199</strong>.</p>
+    </div>
+  </footer>
+
+
+  <!-- ================================================================= -->
+  <!-- JAVASCRIPT COMPLETO (LOGICA DO QUIZ, ACESSIBILIDADE E AUDIO) -->
+  <!-- ================================================================= -->
+  <script>
+    /* BANCO DE DADOS DAS 20 QUESTÕES DA DEFESA CIVIL DIVIDIDAS EM 4 CATEGORIAS */
+    const quizQuestions = [
+      // CATEGORIA 1: ORIGEM E HISTÓRIA DA DEFESA CIVIL
+      {
+        id: 1,
+        category: "Origem e História",
+        question: "Qual foi o marco histórico mundial que motivou o surgimento dos primeiros sistemas modernos de Defesa Civil?",
+        options: [
+          "A Primeira Guerra Mundial e a Revolução Industrial",
+          "A Segunda Guerra Mundial e os intensos bombardeios aéreos em cidades",
+          "O Grande Terremoto de Lisboa em 1755",
+          "A Crise Econômica Global de 1929"
+        ],
+        correct: 1,
+        explanation: "A Defesa Civil moderna nasceu durante a Segunda Guerra Mundial (década de 1940), quando governos perceberam a necessidade urgente de organizar a população civil para proteção contra ataques aéreos e desastres decorrentes da guerra."
+      },
+      {
+        id: 2,
+        category: "Origem e História",
+        question: "O símbolo internacional da Defesa Civil é reconhecido no mundo inteiro. Quais são suas cores e formas oficiais?",
+        options: [
+          "Um círculo vermelho com uma estrela branca no centro",
+          "Um triângulo equilátero azul sobre um fundo quadrado ou circular laranja",
+          "Um escudo verde com uma cruz amarela no meio",
+          "Uma cruz vermelha em fundo branco circular"
+        ],
+        correct: 1,
+        explanation: "O símbolo internacional consiste em um triângulo equilátero azul em fundo laranja. O triângulo representa a união e estabilidade das forças de proteção, enquanto a cor laranja simboliza o alerta constante e a vitalidade."
+      },
+      {
+        id: 3,
+        category: "Origem e História",
+        question: "No Brasil, qual lei federal instituiu a Política Nacional de Proteção e Defesa Civil (PNPDEC)?",
+        options: [
+          "O Decreto-Lei nº 4.098 de 1942",
+          "A Constituição Federal de 1988",
+          "A Lei Federal nº 12.608 de 2012",
+          "O Código Florestal Brasileiro de 2006"
+        ],
+        correct: 2,
+        explanation: "A Lei Federal nº 12.608/2012 instituiu a PNPDEC, reorganizando o SINPDEC e priorizando ações de prevenção, mapeamento de riscos e integração com políticas de planejamento urbano."
+      },
+      {
+        id: 4,
+        category: "Origem e História",
+        question: "Qual é o lema oficial e o objetivo central das ações de Defesa Civil no Brasil?",
+        options: [
+          "Defesa Civil: Força e Combate – Focar exclusivamente em combater incêndios",
+          "Defesa Civil: Somos Todos Nós – Prevenir riscos, proteger vidas e reduzir danos a população",
+          "Segurança em Primeiro Lugar – Substituir a atuação das Forças Armadas",
+          "União Pela Cidade – Atuar apenas após o desastre ter ocorrido"
+        ],
+        correct: 1,
+        explanation: "O lema 'Defesa Civil: Somos Todos Nós' destaca que a gestão de riscos e a redução de desastres dependem do esforço conjunto do poder público, entidades e de cada cidadão."
+      },
+      {
+        id: 5,
+        category: "Origem e História",
+        question: "Em que ano foi criado no Brasil o primeiro Serviço Nacional de Defesa Passiva para proteger civis no contexto da Segunda Guerra?",
+        options: [
+          "1942 (Decreto-Lei nº 4.098)",
+          "1964",
+          "1988",
+          "2000"
+        ],
+        correct: 0,
+        explanation: "O serviço foi estruturado originalmente no Brasil em 1942 pelo Governo Federal para organizar medidas de segurança da população contra possíveis ataques aéreos ou navais no litoral."
+      },
+
+      // CATEGORIA 2: NÍVEIS DE ATUAÇÃO E ESTRUTURA DO SINPDEC
+      {
+        id: 6,
+        category: "Estrutura do SINPDEC",
+        question: "O que significa a sigla SINPDEC na organização pública brasileira?",
+        options: [
+          "Sistema Integrado Nacional de Pesquisa e Desenvolvimento do Clima",
+          "Sistema Nacional de Proteção e Defesa Civil",
+          "Sindicato Nacional de Prevenção de Desastres e Calamidades",
+          "Secretaria Intergovernamental de Proteção da Defesa Civil"
+        ],
+        correct: 1,
+        explanation: "O SINPDEC é o Sistema Nacional de Proteção e Defesa Civil, que engloba órgãos federais, estaduais e municipais, além de entidades públicas e privadas e voluntários."
+      },
+      {
+        id: 7,
+        category: "Estrutura do SINPDEC",
+        question: "Qual é o órgão responsável direto pelas ações de Defesa Civil no âmbito do município, atuando mais próximo dos moradores?",
+        options: [
+          "SEDEC (Secretaria Nacional)",
+          "CEDEC (Coordenadoria Estadual)",
+          "COMPDEC (Coordenadoria Municipal de Proteção e Defesa Civil)",
+          "IBAMA"
+        ],
+        correct: 2,
+        explanation: "A COMPDEC (Defesa Civil Municipal) é a linha de frente do sistema, responsável por identificar áreas de risco locais, realizar vistorias, orientar a população e emitir alertas."
+      },
+      {
+        id: 8,
+        category: "Estrutura do SINPDEC",
+        question: "Qual a diferença entre a declaração de 'Situação de Emergência' (SE) e o 'Estado de Calamidade Pública' (ECP)?",
+        options: [
+          "São termos idênticos sem nenhuma diferença legal",
+          "A SE ocorre apenas em guerras; o ECP em chuvas leves",
+          "A SE se aplica a danos superáveis com recursos locais; o ECP aplica-se a desastres muito graves que comprometem severamente a capacidade de resposta municipal",
+          "O ECP é decretado somente por ONGs internacionais"
+        ],
+        correct: 2,
+        explanation: "A Situação de Emergência é decretada quando há danos parciais que requerem auxílio complementar. Já o Estado de Calamidade Pública envolve desastres de grande intensidade, comprometendo gravemente a capacidade do município."
+      },
+      {
+        id: 9,
+        category: "Estrutura do SINPDEC",
+        question: "Qual órgão federal coordena o SINPDEC e realiza a liberação de recursos emergenciais para reconstrução?",
+        options: [
+          "SEDEC - Secretaria Nacional de Proteção e Defesa Civil (vinculada ao MIDR)",
+          "ANATEL",
+          "Ministério da Educação",
+          "Polícia Rodoviária Federal"
+        ],
+        correct: 0,
+        explanation: "A SEDEC articula a política nacional de resposta a desastres, reconhecendo decretações de emergência e transferindo recursos federais de socorro e reconstrução."
+      },
+      {
+        id: 10,
+        category: "Estrutura do SINPDEC",
+        question: "Como um município afetado por um desastre solicita oficialmente o apoio e recursos do Governo Federal?",
+        options: [
+          "Enviando uma carta impressa via correios",
+          "Registrando as informações no S2iD (Sistema Integrado de Informações sobre Desastres)",
+          "Criando uma vaquinha online comunitária",
+          "Preenchendo formulários na caixa postal da prefeitura"
+        ],
+        correct: 1,
+        explanation: "O S2iD é o sistema digital oficial do Governo Federal no qual gestores cadastram decretos, relatórios de danos e solicitações de recursos para rápida homologação."
+      },
+
+      // CATEGORIA 3: PROTEÇÃO E PREVENÇÃO DE DESASTRES
+      {
+        id: 11,
+        category: "Prevenção de Desastres",
+        question: "Para qual número GRATUITO via SMS qualquer cidadão brasileiro pode enviar seu CEP para receber ALERTAS CLIMÁTICOS no celular?",
+        options: [
+          "190",
+          "199",
+          "40199",
+          "193"
+        ],
+        correct: 2,
+        explanation: "Ao enviar uma mensagem SMS gratuita com o número do seu CEP para o número 40199, você passa a receber alertas preventivos oficiais da Defesa Civil do seu estado/município."
+      },
+
+      {
+        id: 12,
+        category: "Prevenção de Desastres",
+        question: "Quais sinais visíveis em um morro ou encosta indicam RISCO IMINENTE de DESLIZAMENTO DE TERRA?",
+        options: [
+          "Crescimento de grama nova e voo de passarinhos",
+          "Rachaduras no solo ou paredes, postes e árvores inclinados e água minando lamacenta",
+          "Temperatura do ar em elevação e vento calmo",
+          "Solo endurecido e extremamente seco sem vegetação"
+        ],
+        correct: 1,
+        explanation: "Trincas no terreno, portas emperrando, árvores/postes tortos e água turva saindo do morro são avisos de que o solo está se movimentando. Evacue a área imediatamente e ligue 199."
+      },
+      {
+        id: 13,
+        category: "Prevenção de Desastres",
+        question: "Durante uma tempestade severa com RAIOS em local aberto, qual postura é a MAIS SEGURA?",
+        options: [
+          "Procurar abrigo debaixo da árvore mais alta e isolada",
+          "Ficar em pé ao lado de cercas metálicas ou varais de ferro",
+          "Afastar-se de árvores e estruturas metálicas, agachar-se com os pés juntos e cabeça entre os joelhos",
+          "Segurar um guarda-chuva com ponta de metal erguido"
+        ],
+        correct: 2,
+        explanation: "Árvores isoladas e cercas atritam e atraem raios. Se estiver sem abrigo fechado, agache-se com pés unidos para diminuir o ponto de contato com o solo e o risco de descargas elétricas."
+      },
+      {
+        id: 14,
+        category: "Prevenção de Desastres",
+        question: "Ao se deparar com uma via coberta por ENXURRADA ou água em movimento rápido, qual a conduta adequada?",
+        options: [
+          "Tentar atravessar a pé se a água estiver na altura do joelho",
+          "Não tentar atravessar a pé nem de carro, pois cerca de 30cm a 50cm de água corrente podem arrastar um veículo",
+          "Acelerar o carro para vencer a força da água",
+          "Permanecer dentro do carro submerso no meio do rio"
+        ],
+        correct: 1,
+        explanation: "A força da água em movimento é ilusória e devastadora. Poucos centímetros derrubam uma pessoa adulta e cerca de 30cm a 50cm são suficientes para fazer um carro flutuar e ser levado."
+      },
+      {
+        id: 15,
+        category: "Prevenção de Desastres",
+        question: "Durante períodos de SECA ou ESTIAGEM prolongada, qual medida de segurança é essencial?",
+        options: [
+          "Fazer queimadas de folhas secas no quintal",
+          "Manter-se muito bem hidratado, umidificar ambientes internos e JAMAIS atear fogo em vegetação",
+          "Evitar beber água para poupar reservatórios municipais",
+          "Fazer exercícios físicos intensos ao ar livre no sol das 12h"
+        ],
+        correct: 1,
+        explanation: "A baixa umidade afeta a saúde respiratória. Queimadas são extremamente perigosas no período de seca, pois o vento alastra o fogo em segundos, causando grandes incêndios florestais."
+      },
+
+      // CATEGORIA 4: PARTICIPAÇÃO COMUNITÁRIA E CIDADANIA
+      {
+        id: 16,
+        category: "Participação Comunitária",
+        question: "Qual é o número de TELEFONE DE EMERGÊNCIA da Defesa Civil para ligações gratuitas?",
+        options: [
+          "190 (Polícia Militar)",
+          "193 (Corpo de Bombeiros)",
+          "199 (Defesa Civil)",
+          "192 (SAMU)"
+        ],
+        correct: 2,
+        explanation: "O número 199 é o telefone de emergência gratuito da Defesa Civil em todo o Brasil para reportar riscos de deslizamento, desabamentos e inundações."
+      },
+      {
+        id: 17,
+        category: "Participação Comunitária",
+        question: "O que são os NUDEC (Núcleos Comunitários de Proteção e Defesa Civil)?",
+        options: [
+          "Empresas privadas de venda de sirenes",
+          "Grupos organizados de moradores voluntários capacitados para atuar na prevenção e percepção de riscos em seu próprio bairro",
+          "Centrais de teleatendimento cobradas",
+          "Bases milicianas privadas"
+        ],
+        correct: 1,
+        explanation: "Os NUDECs conectam a comunidade com a Defesa Civil. Moradores voluntários recebem treinamento para reconhecer perigos, organizar simulações de evacuação e salvar vidas no seu bairro."
+      },
+      {
+        id: 18,
+        category: "Participação Comunitária",
+        question: "Como uma família pode elaborar um Plano Familiar de Emergência simples e eficiente?",
+        options: [
+          "Ignorando avisos meteorológicos para não ficar ansiosa",
+          "Conhecendo rotas de fuga seguras, ponto de encontro e mantendo uma mochila com documentos, remédios e lanterna",
+          "Construindo quartos adicionais na beira de barrancos",
+          "Guardando galões de gasolina na cozinha"
+        ],
+        correct: 1,
+        explanation: "Ter uma mochila de emergência com itens básicos (remédios, documentos em saco plástico, lanterna, água) e combinar um local seguro de reencontro evita pânico e agiliza evacuações."
+      },
+      {
+        id: 19,
+        category: "Participação Comunitária",
+        question: "Por que o descarte incorreto de lixo em encostas e bueiros aumenta drasticamente o risco de desastres?",
+        options: [
+          "Não há impacto significativo",
+          "O lixo entope a drenagem provocando alagamentos e adiciona peso e água no solo das encostas, desencadeando deslizamentos",
+          "O lixo atrai apenas aves migratórias",
+          "Ajuda a segurar a terra do morro"
+        ],
+        correct: 1,
+        explanation: "Lixo nos bueiros impede o escoamento de águas pluviais, causando inundações urbanas. Nas encostas, o acúmulo de lixo retém água da chuva, sobrecarregando o solo e provocando desabamentos."
+      },
+      {
+        id: 20,
+        category: "Participação Comunitária",
+        question: "Qual a diferença fundamental entre as etapas de PREVENÇÃO e RESPOSTA na Proteção Civil?",
+        options: [
+          "Prevenção atua ANTES para mapear e reduzir riscos; Resposta atua DURANTE E APÓS o desastre para resgate e assistência humanitária",
+          "Prevenção é feita após o desastre; Resposta é feita anos antes",
+          "Ambas ocorrem apenas em escolas privadas",
+          "Não existe fase de prevenção no Brasil"
+        ],
+        correct: 0,
+        explanation: "A Prevenção (obras, planejamento, educação) evita que o desastre aconteça. A Resposta é o atendimento emergencial direto de socorro, salvamento e abrigo às pessoas afetadas."
+      }
+    ];
+
+    /* ESTADO DA APLICAÇÃO (STATE MANAGEMENT) */
+    let currentQuestionIndex = 0;
+    let userScore = 0;
+    let currentCombo = 0;
+    let maxCombo = 0;
+    let userAnswers = []; // guarda { questionId, selected, isCorrect, timeSpent }
+    let isAnswered = false;
+    let timerInterval = null;
+    let timeLeft = 30;
+    let isTimerEnabled = false;
+    let isAudioMuted = false;
+    let isAutoReadEnabled = false;
+    let speechRate = 1.0;
+
+    // Web Audio Context API para efeitos sonoros
+    let audioCtx = null;
+
+    /* INICIALIZAÇÃO DA PÁGINA */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadHighScore();
+      setupKeyboardShortcuts();
+      checkAccessibilityPreferences();
+    });
+
+    /* CARREGAR RECORDE DO LOCALSTORAGE */
+    function loadHighScore() {
+      const savedScore = localStorage.getItem('defesa_civil_quiz_highscore') || '0';
+      document.getElementById('lblHighScore').textContent = `${savedScore} Pts`;
+    }
+
+    /* SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API SEM DEPENDÊNCIAS SEPARADAS) */
+    function initAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (isAudioMuted) return;
+      initAudioContext();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'correct') {
+        // Chime agudo de acerto
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc1.frequency.setValueAtTime(523.25, now); // C5
+        osc2.frequency.setValueAtTime(659.25, now + 0.1); // E5
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc1.start(now);
+        osc1.stop(now + 0.35);
+        osc2.start(now + 0.1);
+        osc2.stop(now + 0.35);
+      } 
+      else if (type === 'wrong') {
+        // Som grave de erro
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.linearRampToValueAtTime(90, now + 0.25);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } 
+      else if (type === 'click') {
+        // Clique sutil de botão
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+      else if (type === 'finish') {
+        // Fanfarra de conclusão
+        [261.63, 329.63, 392.00, 523.25].forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+          gain.gain.setValueAtTime(0.1, now + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.1);
+          osc.stop(now + idx * 0.1 + 0.25);
+        });
+      }
+    }
+
+    function toggleMuteAudio() {
+      isAudioMuted = !isAudioMuted;
+      document.getElementById('iconAudioMute').textContent = isAudioMuted ? '🔇' : '🔊';
+      announceToScreenReader(isAudioMuted ? 'Efeitos sonoros desativados' : 'Efeitos sonoros ativados');
+    }
+
+    /* LEITOR DE VOZ (WEB SPEECH API) */
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        showToast('Navegador sem suporte a leitura de voz.');
+        return;
+      }
+      window.speechSynthesis.cancel(); // cancela leituras anteriores
+      if (!text) return;
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.rate = speechRate;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function stopSpeechSynthesis() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function toggleAutoRead(checked) {
+      isAutoReadEnabled = checked;
+      announceToScreenReader(checked ? 'Leitura automática ativada' : 'Leitura automática desativada');
+    }
+
+    function readCurrentQuestionSpeech() {
+      const q = quizQuestions[currentQuestionIndex];
+      if (!q) return;
+      let textToRead = `Categoria: ${q.category}. Questão ${currentQuestionIndex + 1}: ${q.question}. Opções: `;
+      q.options.forEach((opt, idx) => {
+        textToRead += ` Opção ${idx + 1}: ${opt}. `;
+      });
+      speakText(textToRead);
+    }
+
+    /* INICIAR O QUIZ */
+    function startQuiz() {
+      playSound('click');
+      currentQuestionIndex = 0;
+      userScore = 0;
+      currentCombo = 0;
+      maxCombo = 0;
+      userAnswers = [];
+      isAnswered = false;
+
+      isTimerEnabled = document.getElementById('chkEnableTimer').checked;
+      document.getElementById('timerContainer').classList.toggle('hidden', !isTimerEnabled);
+
+      // Alternar Telas
+      document.getElementById('screenIntro').classList.add('hidden');
+      document.getElementById('screenResults').classList.add('hidden');
+      document.getElementById('screenQuiz').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    /* RENDERIZAR QUESTÃO ATUAL */
+    function renderQuestion() {
+      isAnswered = false;
+      const q = quizQuestions[currentQuestionIndex];
+
+      // Atualizar Contadores e Progresso
+      document.getElementById('lblQuestionCounter').textContent = `${currentQuestionIndex + 1} / ${quizQuestions.length}`;
+      const progressPercent = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+      // Categoria e Texto
+      document.getElementById('lblCategory').textContent = q.category;
+      document.getElementById('lblQuestionText').textContent = q.question;
+
+      // Ocultar Caixa de Feedback e Botão Avançar
+      document.getElementById('feedbackBox').classList.add('hidden');
+      document.getElementById('btnNextQuestion').classList.add('hidden');
+
+      // Renderizar Opções em Cards Responsivos
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      const optionLetters = ['1', '2', '3', '4'];
+
+      q.options.forEach((optionText, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', 'false');
+        btn.setAttribute('aria-label', `Opção ${idx + 1}: ${optionText}`);
+        btn.className = `option-btn w-full text-left p-4 sm:p-5 rounded-xl border-2 border-slate-200 bg-slate-50 hover:bg-orange-50 hover:border-defesa-orange text-slate-800 font-semibold text-sm sm:text-base transition-all flex items-center justify-between gap-3 min-h-[52px] hc-card cursor-pointer`;
+        btn.onclick = () => selectOption(idx);
+
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg bg-defesa-navy text-white font-extrabold text-xs flex items-center justify-center flex-shrink-0 border border-slate-600">
+              ${optionLetters[idx]}
+            </span>
+            <span class="leading-snug">${optionText}</span>
+          </div>
+          <span class="option-icon text-xl flex-shrink-0 opacity-0" aria-hidden="true">⚪</span>
+        `;
+
+        container.appendChild(btn);
+      });
+
+      // Announce no leitor de tela
+      announceToScreenReader(`Questão ${currentQuestionIndex + 1} de 20: ${q.question}`);
+
+      // Se leitura automática estiver ligada
+      if (isAutoReadEnabled) {
+        setTimeout(() => readCurrentQuestionSpeech(), 300);
+      }
+
+      // Iniciar Timer se Habilitado
+      if (isTimerEnabled) {
+        startTimer();
+      }
+    }
+
+    /* SELECIONAR E PROCESSAR A RESPOSTA */
+    function selectOption(selectedIndex) {
+      if (isAnswered) return;
+      isAnswered = true;
+      stopTimer();
+
+      const q = quizQuestions[currentQuestionIndex];
+      const isCorrect = (selectedIndex === q.correct);
+      const optionButtons = document.querySelectorAll('.option-btn');
+
+      // Atualizar Combos e Pontos
+      if (isCorrect) {
+        currentCombo++;
+        if (currentCombo > maxCombo) maxCombo = currentCombo;
+        const comboMultiplier = currentCombo > 1 ? currentCombo : 1;
+        const pointsGained = 100 * comboMultiplier;
+        userScore += pointsGained;
+        playSound('correct');
+      } else {
+        currentCombo = 0;
+        playSound('wrong');
+      }
+
+      // Atualizar UI dos Pontos
+      document.getElementById('lblScore').textContent = userScore;
+      
+      const comboBadge = document.getElementById('comboBadge');
+      if (currentCombo >= 2) {
+        comboBadge.classList.remove('hidden');
+        document.getElementById('lblComboCount').textContent = `x${currentCombo}`;
+      } else {
+        comboBadge.classList.add('hidden');
+      }
+
+      // Guardar Resposta
+      userAnswers.push({
+        questionId: q.id,
+        category: q.category,
+        selected: selectedIndex,
+        correct: q.correct,
+        isCorrect: isCorrect
+      });
+
+      // Estilizar Cards
+      optionButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove('hover:bg-orange-0', 'hover:border-defesa-orange');
+
+        if (idx === q.correct) {
+          // Opção Correta (Verde)
+          btn.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900', 'font-bold');
+          btn.querySelector('.option-icon').textContent = '✅';
+          btn.querySelector('.option-icon').classList.remove('opacity-0');
+          btn.setAttribute('aria-checked', 'true');
+        } else if (idx === selectedIndex && !isCorrect) {
+          // Opção Errada Selecionada (Vermelho)
+          btn.classList.add('bg-red-50', 'border-red-500', 'text-red-900');
+          btn.querySelector('.option-icon').textContent = '❌';
+          btn.querySelector('.option-icon').classList.remove('opacity-0');
+        } else {
+          btn.classList.add('opacity-50');
+        }
+      });
+
+      // Mostrar Caixa de Explicação Educativa
+      const feedbackBox = document.getElementById('feedbackBox');
+      const feedbackTitle = document.getElementById('feedbackTitle');
+      const feedbackText = document.getElementById('feedbackText');
+      const feedbackIcon = document.getElementById('feedbackIcon');
+
+      feedbackBox.classList.remove('hidden');
+
+      if (isCorrect) {
+        feedbackBox.className = "p-5 rounded-xl border-2 mb-6 card-transition bg-emerald-50 border-emerald-300 text-emerald-950 hc-card";
+        feedbackIcon.textContent = '🎉';
+        feedbackTitle.textContent = 'Resposta Correta!';
+      } else {
+        feedbackBox.className = "p-5 rounded-xl border-2 mb-6 card-transition bg-amber-50 border-amber-300 text-amber-950 hc-card";
+        feedbackIcon.textContent = '💡';
+        feedbackTitle.textContent = selectedIndex === -1 ? 'Tempo Esgotado!' : 'Atenção e Aprendizado:';
+      }
+
+      feedbackText.textContent = q.explanation;
+
+      // Exibir Botão de Próxima Questão
+      const btnNext = document.getElementById('btnNextQuestion');
+      btnNext.classList.remove('hidden');
+      btnNext.focus();
+
+      // Anúncio falado de feedback
+      const speechFeedback = (isCorrect ? "Correto!" : "Incorreto.") + " " + q.explanation;
+      announceToScreenReader(speechFeedback);
+
+      if (isAutoReadEnabled) {
+        speakText(speechFeedback);
+      }
+    }
+
+    /* TIMER REGRESSIVO */
+    function startTimer() {
+      stopTimer();
+      timeLeft = 30;
+      document.getElementById('lblTimer').textContent = `${timeLeft}s`;
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('lblTimer').textContent = `${timeLeft}s`;
+        if (timeLeft <= 0) {
+          stopTimer();
+          selectOption(-1); // Resposta em branco por tempo esgotado
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    /* AVANÇAR PARA A PRÓXIMA QUESTÃO OU TELA FINAL */
+    function nextQuestion() {
+      playSound('click');
+      stopSpeechSynthesis();
+      currentQuestionIndex++;
+
+      if (currentQuestionIndex < quizQuestions.length) {
+        renderQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    /* FINALIZAR O QUIZ E RENDERIZAR RESULTADOS */
+    function finishQuiz() {
+      playSound('finish');
+      
+      document.getElementById('screenQuiz').classList.add('hidden');
+      document.getElementById('screenResults').classList.remove('hidden');
+
+      const totalQuestions = quizQuestions.length;
+      const totalCorrect = userAnswers.filter(a => a.isCorrect).length;
+      const percent = Math.round((totalCorrect / totalQuestions) * 100);
+
+      // Salvar Recorde
+      const savedHigh = parseInt(localStorage.getItem('defesa_civil_quiz_highscore') || '0', 10);
+      if (userScore > savedHigh) {
+        localStorage.setItem('defesa_civil_quiz_highscore', userScore.toString());
+        loadHighScore();
+        showToast('🎉 NOVO RECORDE PESSOAL REGISTRADO!');
+      }
+
+      // Preencher Placar Final
+      document.getElementById('lblFinalScore').textContent = userScore;
+      document.getElementById('lblFinalCorrect').textContent = `${totalCorrect} / ${totalQuestions}`;
+      document.getElementById('lblFinalPercent').textContent = `${percent}%`;
+      document.getElementById('lblFinalCombo').textContent = `x${maxCombo}`;
+
+      // Patentes e Títulos de Proteção Civil
+      let rankTitle = "";
+      let rankDesc = "";
+      let rankIcon = "";
+
+      if (percent >= 90) {
+        rankTitle = "Comandante de Proteção e Defesa Civil";
+        rankDesc = "Excelente! Você domina completamente as diretrizes de prevenção, resposta e cidadania do SINPDEC!";
+        rankIcon = "🎖️";
+      } else if (percent >= 70) {
+        rankTitle = "Especialista em Gestão de Riscos";
+        rankDesc = "Ótimo desempenho! Você conhece profundamente as estratégias de prevenção e proteção a desastres.";
+        rankIcon = "🛡️";
+      } else if (percent >= 50) {
+        rankTitle = "Agente Comunitário Voluntário";
+        rankDesc = "Bom trabalho! Você possui noções sólidas para auxiliar sua comunidade em situações de emergência.";
+        rankIcon = "🎗️";
+      } else {
+        rankTitle = "Cidadão Aprendiz de Defesa Civil";
+        rankDesc = "Você deu o primeiro passo! Revise as questões para fortalecer seu conhecimento e proteger sua família.";
+        rankIcon = "🌱";
+      }
+
+      document.getElementById('lblRankTitle').textContent = rankTitle;
+      document.getElementById('lblRankDescription').textContent = rankDesc;
+      document.getElementById('rankBadgeIcon').textContent = rankIcon;
+
+      // Diagnóstico Detalhado por Categoria
+      renderCategoryBreakdown();
+
+      announceToScreenReader(`Quiz concluído! Sua pontuação foi ${userScore} pontos com ${totalCorrect} acertos de 20. Patente obtida: ${rankTitle}`);
+    }
+
+    /* RENDERIZAR DIAGNÓSTICO POR CATEGORIA NA TELA FINAL */
+    function renderCategoryBreakdown() {
+      const breakdownContainer = document.getElementById('categoryBreakdownContainer');
+      breakdownContainer.innerHTML = '';
+
+      const categories = [
+        "Origem e História",
+        "Estrutura do SINPDEC",
+        "Prevenção de Desastres",
+        "Participação Comunitária"
+      ];
+
+      categories.forEach(cat => {
+        const catAnswers = userAnswers.filter(a => a.category === cat);
+        const catCorrect = catAnswers.filter(a => a.isCorrect).length;
+        const catTotal = catAnswers.length || 1;
+        const catPercent = Math.round((catCorrect / catTotal) * 100);
+
+        const card = document.createElement('div');
+        card.className = "hc-card bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+
+        card.innerHTML = `
+          <div class="flex-1">
+            <span class="text-xs font-bold text-slate-800 hc-text-yellow block mb-1">${cat}</span>
+            <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+              <div class="bg-defesa-navy h-full rounded-full" style="width: ${catPercent}%"></div>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <span class="text-xs font-black text-defesa-orange">${catCorrect} / ${catTotal} acertos (${catPercent}%)</span>
+          </div>
+        `;
+
+        breakdownContainer.appendChild(card);
+      });
+    }
+
+    /* MODAL DE REVISÃO DAS 20 QUESTÕES */
+    function toggleReviewModal() {
+      playSound('click');
+      const modal = document.getElementById('reviewModal');
+      const isHidden = modal.classList.contains('hidden');
+
+      if (isHidden) {
+        modal.classList.remove('hidden');
+        renderReviewList();
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function renderReviewList() {
+      const container = document.getElementById('reviewListContainer');
+      container.innerHTML = '';
+
+      quizQuestions.forEach((q, idx) => {
+        const userAns = userAnswers.find(a => a.questionId === q.id);
+        const isCorrect = userAns ? userAns.isCorrect : false;
+        const selectedIdx = userAns ? userAns.selected : -1;
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-xl border-2 ${isCorrect ? 'bg-emerald-50/60 border-emerald-300' : 'bg-red-50/60 border-red-300'} hc-card`;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <span class="text-xs font-extrabold px-2.5 py-1 rounded bg-slate-800 text-white">
+              Questão ${idx + 1} - ${q.category}
+            </span>
+            <span class="text-sm font-bold">
+              ${isCorrect ? '✅ Acertou' : '❌ Errou'}
+            </span>
+          </div>
+          <p class="font-bold text-slate-900 hc-text-yellow mb-2">${q.question}</p>
+          <div class="text-xs space-y-1 mb-3">
+            <p class="text-slate-700"><strong>Sua resposta:</strong> ${selectedIdx >= 0 ? q.options[selectedIdx] : 'Não respondida / Tempo esgotado'}</p>
+            <p class="text-emerald-800"><strong>Resposta Correta:</strong> ${q.options[q.correct]}</p>
+          </div>
+          <p class="text-xs text-slate-600 hc-text-yellow bg-white p-2.5 rounded border border-slate-200">
+            💡 <strong>Explicação:</strong> ${q.explanation}
+          </p>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    /* COMPARTILHAR RESULTADO (CLIPBOARD FALLBACK COMPATÍVEL) */
+    function shareResults() {
+      playSound('click');
+      const totalCorrect = userAnswers.filter(a => a.isCorrect).length;
+      const rankTitle = document.getElementById('lblRankTitle').textContent;
+
+      const shareText = `🛡️ Quiz Interativo da Defesa Civil 🛡️\n\nConcluí o teste de Proteção e Acessibilidade!\n🎯 Pontuação: ${userScore} Pts\n✅ Acertos: ${totalCorrect}/20\n🏅 Patente: ${rankTitle}\n\nFaça o teste também e aprenda sobre prevenção de riscos e cidadania!`;
+
+      // Fallback usando textarea para iframe restrictions
+      const textArea = document.createElement('textarea');
+      textArea.value = shareText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        showToast('📋 Resultado copiado para a área de transferência!');
+      } catch (err) {
+        showToast('Não foi possível copiar automaticamente.');
+      }
+      
+      document.body.removeChild(textArea);
+    }
+
+
+    /* ================================================================= */
+    /* FERRAMENTAS DE ACESSIBILIDADE E TEMAS (WCAG 2.1) */
+    /* ================================================================= */
+    
+    function toggleAccessibilityDrawer() {
+      playSound('click');
+      const drawer = document.getElementById('accessibilityDrawer');
+      const btn = document.getElementById('btnOpenAccessibility');
+      const isHidden = drawer.classList.contains('hidden');
+
+      if (isHidden) {
+        drawer.classList.remove('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+      } else {
+        drawer.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function setTextScale(scale) {
+      playSound('click');
+      const html = document.documentElement;
+      html.classList.remove('text-scale-80', 'text-scale-100', 'text-scale-120', 'text-scale-140');
+      html.classList.add(`text-scale-${scale}`);
+      announceToScreenReader(`Tamanho do texto ajustado para ${scale}%`);
+    }
+
+    function setTheme(theme) {
+      playSound('click');
+      const body = document.getElementById('appBody');
+      body.classList.remove('theme-high-contrast', 'theme-dark', 'theme-grayscale');
+
+      if (theme === 'high-contrast') {
+        body.classList.add('theme-high-contrast');
+      } else if (theme === 'dark') {
+        body.classList.add('theme-dark');
+      } else if (theme === 'grayscale') {
+        body.classList.add('theme-grayscale');
+      }
+      announceToScreenReader(`Esquema de cores alterado para ${theme}`);
+    }
+
+    function cycleQuickContrast() {
+      const body = document.getElementById('appBody');
+      if (body.classList.contains('theme-high-contrast')) {
+        setTheme('dark');
+      } else if (body.classList.contains('theme-dark')) {
+        setTheme('grayscale');
+      } else if (body.classList.contains('theme-grayscale')) {
+        setTheme('default');
+      } else {
+        setTheme('high-contrast');
+      }
+    }
+
+    function toggleDyslexiaFont(enabled) {
+      playSound('click');
+      document.body.classList.toggle('dyslexia-font', enabled);
+      announceToScreenReader(enabled ? 'Fonte para dislexia ativada' : 'Fonte para dislexia desativada');
+    }
+
+    function toggleExpandedSpacing(enabled) {
+      playSound('click');
+      document.body.classList.toggle('expanded-spacing', enabled);
+      announceToScreenReader(enabled ? 'Espaçamento ampliado ativado' : 'Espaçamento normal');
+    }
+
+    function toggleReduceMotion(enabled) {
+      playSound('click');
+      document.body.classList.toggle('reduce-motion', enabled);
+      announceToScreenReader(enabled ? 'Redução de movimento ativada' : 'Animações normais');
+    }
+
+    function checkAccessibilityPreferences() {
+      // Verificar se o sistema do usuário solicita redução de movimento
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.classList.add('reduce-motion');
+        const chk = document.getElementById('chkReduceMotion');
+        if (chk) chk.checked = true;
+      }
+    }
+
+    function announceToScreenReader(msg) {
+      const announcer = document.getElementById('ariaAnnouncer');
+      if (announcer) {
+        announcer.textContent = msg;
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      toast.textContent = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    /* SUPORTE TOTAL A ATALHOS DE TECLADO */
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        // Ignorar se o usuário estiver digitando em campos de texto
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+        // Tecla ESC fecha painéis
+        if (e.key === 'Escape') {
+          document.getElementById('accessibilityDrawer').classList.add('hidden');
+          document.getElementById('reviewModal').classList.add('hidden');
+          return;
+        }
+
+        // Teclas na Tela do Quiz
+        const quizScreen = document.getElementById('screenQuiz');
+        if (!quizScreen.classList.contains('hidden')) {
+          
+          // Seleção 1, 2, 3, 4
+          if (['1', '2', '3', '4'].includes(e.key) && !isAnswered) {
+            const idx = parseInt(e.key, 10) - 1;
+            selectOption(idx);
+          }
+
+          // Tecla Espaço ou Enter para avançar quando respondida
+          if ((e.key === 'Enter' || e.key === ' ') && isAnswered) {
+            e.preventDefault();
+            nextQuestion();
+          }
+
+          // Atalho 'A' para ler em voz alta
+          if (e.key.toLowerCase() === 'a') {
+            readCurrentQuestionSpeech();
+          }
+
+          // Atalho 'M' para som
+          if (e.key.toLowerCase() === 'm') {
+            toggleMuteAudio();
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
